@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GeneSync Web Demo</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23660100'/%3E%3Cpath d='M18 20h28M18 32h28M18 44h28' stroke='%23fff8f6' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='24' cy='20' r='4' fill='%23fff8f6'/%3E%3Ccircle cx='40' cy='32' r='4' fill='%23fff8f6'/%3E%3Ccircle cx='28' cy='44' r='4' fill='%23fff8f6'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="./styles.css?v=20260621-marker-1" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">GeneSync Web Demo</p>
+          <h1>Needleman-Wunsch Alignment</h1>
+        </div>
+        <button class="icon-button" id="sampleButton" type="button" aria-label="Load sample">
+          <span aria-hidden="true">↻</span>
+        </button>
+      </header>
+
+      <main>
+        <section class="screen active" id="homeScreen" data-screen="home">
+          <div class="panel intro-panel">
+            <div class="intro-mark" aria-hidden="true">⟲</div>
+            <div>
+              <h2>About GeneSync</h2>
+              <p>
+                GeneSync is a bioinformatics learning tool for global pairwise sequence alignment.
+                It compares two biological sequences, fills a dynamic programming matrix, traces the
+                optimal path, and presents the final alignment with supporting interpretation.
+              </p>
+            </div>
+            <div class="chip-row">
+              <span class="chip">Needleman-Wunsch</span>
+              <span class="chip">DNA / RNA / Protein</span>
+              <span class="chip">Browser Ready</span>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="section-heading">
+              <span aria-hidden="true">⌬</span>
+              <span>System Flow</span>
+            </div>
+            <div class="architecture-list">
+              <div>
+                <span>Phase 1</span>
+                <strong>Ingestion and Validation</strong>
+                <p>Input two sequences, clean FASTA-style text, normalize alphabet strings, and validate DNA, RNA, or protein symbols.</p>
+              </div>
+              <div>
+                <span>Phase 2</span>
+                <strong>Algorithmic Execution</strong>
+                <p>Initialize the scoring matrix, fill the DP grid, and record predecessor moves for traceback.</p>
+              </div>
+              <div>
+                <span>Phase 3</span>
+                <strong>Analytics and Reporting</strong>
+                <p>Compute identity, perform sequence-shuffling significance assessment, and map mutational hotspots.</p>
+              </div>
+              <div>
+                <span>Phase 4</span>
+                <strong>UI and Presentation</strong>
+                <p>Render matrix playback, aligned strings, diagnostics, hotspot graphs, history, and a printable browser report.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="section-heading">
+              <span aria-hidden="true">ƒ</span>
+              <span>Algorithm Core</span>
+            </div>
+            <p>
+              The Align tab applies the Needleman-Wunsch recurrence to every matrix cell:
+            </p>
+            <div class="formula">F(i,j) = max(diagonal + substitution, up + gap, left + gap)</div>
+            <p class="note">
+              Diagonal represents a match or mismatch. Up and left represent gap insertion.
+            </p>
+          </div>
+
+          <div class="panel">
+            <div class="section-heading">
+              <span aria-hidden="true">◇</span>
+              <span>Implemented Features</span>
+            </div>
+            <div class="feature-grid">
+              <article class="feature-card">
+                <strong>Input Validation</strong>
+                <p>DNA, RNA, and protein alphabet checks with FASTA-style cleanup.</p>
+              </article>
+              <article class="feature-card">
+                <strong>Global Alignment</strong>
+                <p>Configurable match, mismatch, and gap scoring for pairwise alignment.</p>
+              </article>
+              <article class="feature-card">
+                <strong>Matrix Traceback</strong>
+                <p>Dynamic programming grid with the optimal traceback path highlighted.</p>
+              </article>
+              <article class="feature-card">
+                <strong>Analytics</strong>
+                <p>Identity percentage, shuffle significance, and sliding-window hotspot detection.</p>
+              </article>
+              <article class="feature-card">
+                <strong>Output</strong>
+                <p>Readable aligned-string view, local run history, and printable browser report.</p>
+              </article>
+              <article class="feature-card">
+                <strong>Boundaries</strong>
+                <p>Global pairwise alignment only, with a 5,000-character sequence cap and a 100,000-cell web-demo matrix cap.</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="section-heading">
+              <span aria-hidden="true">⌕</span>
+              <span>Validation Sources</span>
+            </div>
+            <p class="note">
+              GeneSync uses a small curated marker database backed by these validation sources.
+              Matched records become known variant results; unmatched differences remain candidates.
+            </p>
+            <div class="source-grid">
+              <a class="source-card" href="https://hgvs-nomenclature.org/stable/" target="_blank" rel="noopener">
+                <strong>HGVS</strong>
+                <span>Standard variant naming</span>
+              </a>
+              <div class="source-card">
+                <strong>Reference Context</strong>
+                <span>Local curated motif match</span>
+              </div>
+              <a class="source-card" href="https://www.ensembl.org/vep" target="_blank" rel="noopener">
+                <strong>Ensembl VEP</strong>
+                <span>Predicted variant effect</span>
+              </a>
+              <a class="source-card" href="https://www.ncbi.nlm.nih.gov/clinvar/intro/" target="_blank" rel="noopener">
+                <strong>ClinVar</strong>
+                <span>Clinical variation evidence</span>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" id="alignScreen" data-screen="align">
+          <div class="panel">
+            <div class="section-heading">
+              <span aria-hidden="true">▤</span>
+              <span>Test Presets</span>
+            </div>
+            <div class="preset-grid">
+              <button class="preset-card" type="button" data-preset="normal">
+                <strong>Normal DNA</strong>
+                <span>Substitution candidates</span>
+              </button>
+              <button class="preset-card" type="button" data-preset="perfect">
+                <strong>Perfect Match</strong>
+                <span>100% identity</span>
+              </button>
+              <button class="preset-card" type="button" data-preset="insertion">
+                <strong>Insertion</strong>
+                <span>Gap in reference</span>
+              </button>
+              <button class="preset-card" type="button" data-preset="deletion">
+                <strong>Deletion</strong>
+                <span>Gap in variant</span>
+              </button>
+              <button class="preset-card warning" type="button" data-preset="invalid-dna">
+                <strong>Invalid DNA</strong>
+                <span>Shows letter validation</span>
+              </button>
+              <button class="preset-card" type="button" data-preset="rna">
+                <strong>RNA Mode</strong>
+                <span>Uses U instead of T</span>
+              </button>
+              <button class="preset-card" type="button" data-preset="protein">
+                <strong>Protein Mode</strong>
+                <span>Amino acid symbols</span>
+              </button>
+              <button class="preset-card warning" type="button" data-preset="large-matrix">
+                <strong>Large Matrix</strong>
+                <span>Triggers cell cap</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="section-heading">
+              <span aria-hidden="true">◉</span>
+              <span>Sequence Type</span>
+            </div>
+            <div class="segmented" role="radiogroup" aria-label="Sequence type">
+              <button class="segment active" type="button" data-kind="dna">DNA</button>
+              <button class="segment" type="button" data-kind="rna">RNA</button>
+              <button class="segment" type="button" data-kind="protein">Protein</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="section-heading">
+              <span aria-hidden="true">①</span>
+              <span>Sequence A</span>
+            </div>
+            <textarea id="sequenceA" spellcheck="false">GATTACA</textarea>
+            <div class="field-footer">
+              <span class="chip" id="countA">7 chars</span>
+              <div class="field-actions">
+                <input id="uploadA" class="sr-only" type="file" accept=".fasta,.fa,.fna,.ffn,.faa,.txt,text/plain" />
+                <button class="link-button" id="uploadButtonA" type="button">Upload</button>
+                <button class="link-button" id="clearA" type="button">Clear</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="section-heading">
+              <span aria-hidden="true">②</span>
+              <span>Sequence B</span>
+            </div>
+            <textarea id="sequenceB" spellcheck="false">GTCGACG</textarea>
+            <div class="field-footer">
+              <span class="chip" id="countB">7 chars</span>
+              <div class="field-actions">
+                <input id="uploadB" class="sr-only" type="file" accept=".fasta,.fa,.fna,.ffn,.faa,.txt,text/plain" />
+                <button class="link-button" id="uploadButtonB" type="button">Upload</button>
+                <button class="link-button" id="clearB" type="button">Clear</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="section-heading">
+              <span aria-hidden="true">±</span>
+              <span>Scoring Profile</span>
+            </div>
+            <div class="control-grid">
+              <label>
+                <span>Match</span>
+                <input id="matchScore" type="number" value="1" min="-10" max="20" />
+              </label>
+              <label>
+                <span>Mismatch</span>
+                <input id="mismatchScore" type="number" value="-1" min="-20" max="10" />
+              </label>
+              <label>
+                <span>Gap</span>
+                <input id="gapScore" type="number" value="-2" min="-20" max="0" />
+              </label>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="section-heading">
+              <span aria-hidden="true">☷</span>
+              <span>Analysis Parameters</span>
+            </div>
+            <div class="control-grid">
+              <label>
+                <span>Hotspot Window</span>
+                <input id="hotspotWindow" type="number" value="5" min="2" max="40" />
+              </label>
+              <label>
+                <span>Density Threshold</span>
+                <input id="hotspotThreshold" type="number" value="0.4" min="0.1" max="1" step="0.05" />
+              </label>
+              <label>
+                <span>Shuffle Runs</span>
+                <input id="shuffleIterations" type="number" value="100" min="1" max="100" />
+              </label>
+            </div>
+          </div>
+
+          <button class="primary-button" id="runButton" type="button">Run Needleman-Wunsch</button>
+          <p class="error-message" id="errorMessage" role="alert"></p>
+        </section>
+
+        <section class="screen" id="matrixScreen" data-screen="matrix">
+          <div id="matrixEmpty" class="panel empty-state">
+            <h2>No matrix yet</h2>
+            <p>Run an alignment to generate the scoring matrix and traceback path.</p>
+          </div>
+          <div id="matrixContent" class="hidden">
+            <div class="metric-grid" id="matrixMetrics"></div>
+            <div class="panel">
+              <div class="section-heading">
+                <span aria-hidden="true">▦</span>
+                <span>Dynamic Programming Grid</span>
+              </div>
+              <div class="matrix-scroll">
+                <table class="matrix-table" id="matrixTable"></table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" id="resultsScreen" data-screen="results">
+          <div id="resultsEmpty" class="panel empty-state">
+            <h2>No result yet</h2>
+            <p>Run an alignment to inspect the optimal strings and diagnostics.</p>
+          </div>
+          <div id="resultsContent" class="hidden">
+            <div class="metric-grid" id="resultMetrics"></div>
+            <div class="panel">
+              <div class="section-heading">
+                <span aria-hidden="true">≡</span>
+                <span>Aligned Strings</span>
+              </div>
+              <div class="legend-row">
+                <span class="legend match">Match</span>
+                <span class="legend mismatch">Mismatch</span>
+                <span class="legend gap">Gap</span>
+              </div>
+              <div class="alignment-scroll" id="alignmentView"></div>
+            </div>
+            <div class="panel">
+              <div class="section-heading">
+                <span aria-hidden="true">⌁</span>
+                <span id="variantPanelTitle">Variant Result</span>
+              </div>
+              <p class="note" id="variantPanelNote">Run an alignment to classify the submitted differences.</p>
+              <div id="variantCandidateView"></div>
+            </div>
+            <div class="panel">
+              <div class="section-heading">
+                <span aria-hidden="true">∿</span>
+                <span>Significance Assessment</span>
+              </div>
+              <div class="result-list" id="significanceView"></div>
+            </div>
+            <div class="panel">
+              <div class="section-heading">
+                <span aria-hidden="true">▥</span>
+                <span>Hotspots Report</span>
+              </div>
+              <div id="hotspotView"></div>
+            </div>
+            <button class="secondary-button" id="printReport" type="button">Print / Save Report</button>
+          </div>
+        </section>
+
+        <section class="screen" id="historyScreen" data-screen="history">
+          <div class="panel">
+            <div class="section-heading">
+              <span aria-hidden="true">◷</span>
+              <span>Saved History</span>
+            </div>
+            <div id="historyList"></div>
+            <button class="secondary-button" id="clearHistory" type="button">Clear History</button>
+          </div>
+        </section>
+      </main>
+
+      <nav class="tabbar" aria-label="Main navigation">
+        <button class="tab active" type="button" data-target="home">Home</button>
+        <button class="tab" type="button" data-target="align">Align</button>
+        <button class="tab" type="button" data-target="matrix">Matrix</button>
+        <button class="tab" type="button" data-target="results">Results</button>
+        <button class="tab" type="button" data-target="history">History</button>
+      </nav>
+    </div>
+
+    <dialog id="confirmDialog">
+      <form method="dialog" class="dialog-card">
+        <h2>Run Needleman-Wunsch alignment?</h2>
+        <p id="confirmText"></p>
+        <div class="dialog-actions">
+          <button class="secondary-button" value="cancel" type="submit">Cancel</button>
+          <button class="primary-button compact" id="confirmRun" value="run" type="submit">Run Alignment</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="./app.js?v=20260621-marker-1"></script>
+  </body>
+</html>
