@@ -121,8 +121,8 @@ struct MatrixView: View {
                         traceIndex: Int(traceIndex)
                     )
 
-                    if result.rows > MatrixGrid.previewLimit || result.columns > MatrixGrid.previewLimit {
-                        Text("Previewing the first cells plus the terminal row/column for large matrices.")
+                    if result.rows > 18 || result.columns > 18 {
+                        Text("Showing the full matrix. Playback automatically scrolls to the active fill or traceback cell.")
                             .font(GeneSyncTheme.body(12))
                             .foregroundStyle(GeneSyncTheme.secondaryText)
                     }
@@ -185,19 +185,17 @@ struct MatrixView: View {
 }
 
 private struct MatrixGrid: View {
-    static let previewLimit = 18
-
     let result: AlignmentResult
     let playbackMode: MatrixPlaybackMode
     let fillIndex: Int
     let traceIndex: Int
 
     private var rowIndexes: [Int] {
-        previewIndexes(count: result.rows)
+        Array(0..<result.rows)
     }
 
     private var columnIndexes: [Int] {
-        previewIndexes(count: result.columns)
+        Array(0..<result.columns)
     }
 
     private var activePath: Set<TraceCoordinate> {
@@ -205,48 +203,85 @@ private struct MatrixGrid: View {
     }
 
     var body: some View {
-        ScrollView([.horizontal, .vertical], showsIndicators: true) {
-            VStack(alignment: .leading, spacing: 0) {
-                HStack(spacing: 0) {
-                    HeaderCell(text: "", isCorner: true)
-                    HeaderCell(text: "0")
-                    ForEach(columnIndexes.dropFirst(), id: \.self) { column in
-                        HeaderCell(text: sequenceLabel(result.sequenceB, index: column - 1))
-                    }
-                }
-
-                ForEach(rowIndexes, id: \.self) { row in
+        ScrollViewReader { proxy in
+            ScrollView([.horizontal, .vertical], showsIndicators: true) {
+                VStack(alignment: .leading, spacing: 0) {
                     HStack(spacing: 0) {
-                        HeaderCell(text: row == 0 ? "0" : sequenceLabel(result.sequenceA, index: row - 1))
+                        HeaderCell(text: "", isCorner: true)
+                        HeaderCell(text: "0")
+                        ForEach(columnIndexes.dropFirst(), id: \.self) { column in
+                            HeaderCell(text: sequenceLabel(result.sequenceB, index: column - 1))
+                        }
+                    }
 
-                        ForEach(columnIndexes, id: \.self) { column in
-                            let cellIndex = (row * result.columns) + column
-                            MatrixCell(
-                                score: result.matrixScore(row: row, column: column),
-                                move: result.move(row: row, column: column),
-                                isFilled: playbackMode == .traceback || cellIndex <= fillIndex,
-                                isCurrentFill: playbackMode == .fill && cellIndex == fillIndex,
-                                isTrace: activePath.contains(TraceCoordinate(row: row, column: column)),
-                                isTerminal: row == result.rows - 1 && column == result.columns - 1,
-                                isOrigin: row == 0 && column == 0
-                            )
+                    ForEach(rowIndexes, id: \.self) { row in
+                        HStack(spacing: 0) {
+                            HeaderCell(text: row == 0 ? "0" : sequenceLabel(result.sequenceA, index: row - 1))
+
+                            ForEach(columnIndexes, id: \.self) { column in
+                                let coordinate = TraceCoordinate(row: row, column: column)
+                                let cellIndex = (row * result.columns) + column
+                                MatrixCell(
+                                    score: result.matrixScore(row: row, column: column),
+                                    move: result.move(row: row, column: column),
+                                    isFilled: playbackMode == .traceback || cellIndex <= fillIndex,
+                                    isCurrentFill: playbackMode == .fill && cellIndex == fillIndex,
+                                    isTrace: activePath.contains(coordinate),
+                                    isTerminal: row == result.rows - 1 && column == result.columns - 1,
+                                    isOrigin: row == 0 && column == 0
+                                )
+                                .id(cellID(for: coordinate))
+                            }
                         }
                     }
                 }
+                .background(GeneSyncTheme.surfaceLow)
+                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
             }
-            .background(GeneSyncTheme.surfaceLow)
-            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+            .onAppear {
+                scrollToActiveCell(with: proxy, animated: false)
+            }
+            .onChange(of: fillIndex) {
+                guard playbackMode == .fill else { return }
+                scrollToActiveCell(with: proxy)
+            }
+            .onChange(of: traceIndex) {
+                guard playbackMode == .traceback else { return }
+                scrollToActiveCell(with: proxy)
+            }
+            .onChange(of: playbackMode) {
+                scrollToActiveCell(with: proxy)
+            }
         }
         .frame(minHeight: 280)
     }
 
-    private func previewIndexes(count: Int) -> [Int] {
-        guard count > Self.previewLimit else {
-            return Array(0..<count)
+    private func activeCoordinate() -> TraceCoordinate {
+        switch playbackMode {
+        case .fill:
+            let bounded = min(max(fillIndex, 0), max((result.rows * result.columns) - 1, 0))
+            return TraceCoordinate(row: bounded / result.columns, column: bounded % result.columns)
+        case .traceback:
+            let bounded = min(max(traceIndex, 0), max(result.tracebackPath.count - 1, 0))
+            return result.tracebackPath[safe: bounded] ?? TraceCoordinate(row: 0, column: 0)
+        }
+    }
+
+    private func scrollToActiveCell(with proxy: ScrollViewProxy, animated: Bool = true) {
+        let target = cellID(for: activeCoordinate())
+        let action = {
+            proxy.scrollTo(target, anchor: .center)
         }
 
-        let head = Array(0..<(Self.previewLimit - 1))
-        return head + [count - 1]
+        if animated {
+            withAnimation(.easeInOut(duration: 0.14), action)
+        } else {
+            action()
+        }
+    }
+
+    private func cellID(for coordinate: TraceCoordinate) -> String {
+        "matrix-cell-\(coordinate.row)-\(coordinate.column)"
     }
 
     private func sequenceLabel(_ sequence: String, index: Int) -> String {

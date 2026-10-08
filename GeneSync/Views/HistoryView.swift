@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HistoryView: View {
     @EnvironmentObject private var session: GeneSyncSession
+    var onRestore: () -> Void = {}
 
     var body: some View {
         PageScaffold(title: "Saved History", subtitle: "Recent local alignment runs.") {
@@ -15,6 +16,7 @@ struct HistoryView: View {
                 ForEach(session.history) { summary in
                     Button {
                         session.restore(summary)
+                        onRestore()
                     } label: {
                         HistorySummaryCard(summary: summary)
                     }
